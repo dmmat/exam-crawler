@@ -17,3 +17,9 @@ main().then(() => {
 }).catch(() => {
     phantomInstance.exit();
 });;
+
+process.on('SIGINT', () => {
+    phantomInstance.exit();
+    console.log('Bye :)');
+    process.exit();
+});
