@@ -1,6 +1,11 @@
 const phantom = require('phantom');
 const co = require('co');
 
+const config = require('./config');
+
+console.log(config);
+
+
 let phantomInstance = null;
 
 const main = co.wrap(function *() {

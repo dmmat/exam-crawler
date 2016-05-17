@@ -18,6 +18,7 @@
   "homepage": "https://github.com/vgamula/exam-crawler#readme",
   "dependencies": {
     "co": "^4.6.0",
+    "dotenv": "^2.0.0",
     "phantom": "^2.1.2"
   }
 }
