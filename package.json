@@ -1,0 +1,23 @@
+{
+  "name": "exam-crawler",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vgamula/exam-crawler.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vgamula/exam-crawler/issues"
+  },
+  "homepage": "https://github.com/vgamula/exam-crawler#readme",
+  "dependencies": {
+    "co": "^4.6.0",
+    "phantom": "^2.1.2"
+  }
+}
