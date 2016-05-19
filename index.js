@@ -39,11 +39,11 @@ const main = co.wrap(function *() {
 
     const page = yield ph.createPage();
     yield page.open(config.host);
-    yield page.evaluate(function(username, password) {
-        document.getElementById('login_username').value = username;
-        document.getElementById('login_password').value = password;
+    yield page.evaluate(function(config) {
+        document.getElementById('login_username').value = config.username;
+        document.getElementById('login_password').value = config.password;
         document.getElementById('login').submit();
-    }, config.username, config.password);
+    }, config);
     yield sleep(1000);
     yield page.open('https://msn.khnu.km.ua/mod/quiz/view.php?id=198028');
     yield sleep(1000);
