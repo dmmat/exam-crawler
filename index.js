@@ -60,7 +60,10 @@ const main = co.wrap(function *() {
             id = id.slice(0, id.indexOf('&'));
             var answers = [].slice.call(question.querySelectorAll('input[type="radio"][name^="q"]')).map(function(ans) {
                 var text = ans.parentNode.children[1].innerText;
-                return text.slice(text.indexOf('.') + 1).trim();
+                return {
+                    htmlId: ans.id,
+                    text: text.slice(text.indexOf('.') + 1).trim()
+                };
             });
             var questionText = question.querySelector('.qtext').innerText.trim();
             return {
@@ -70,8 +73,27 @@ const main = co.wrap(function *() {
             };
         });
     });
-    console.log(questions);
-})
+    console.log(questions[0]);
+    const optionIdToCheck = questions[0].answers[0].htmlId;
+    yield page.evaluate(function(id) {
+        document.getElementById(id).checked = true;
+        document.querySelector('input[type="submit"]').click();
+    }, optionIdToCheck);
+    yield sleep(1500);
+    yield page.evaluate(function() {
+        document.querySelector('input[id^="single"]').click();
+    });
+    yield sleep(500);
+    yield page.evaluate(function() {
+        document.querySelector('input[id^="id_yuiconfirmyes"]').click();
+    });
+    yield sleep(1500);
+    const result = yield page.evaluate(function() {
+        console.log(document.querySelector('.bestrow.lastrow .c2').innerText);
+        return document.querySelector('.bestrow.lastrow .c2').innerText !== "0";
+    });
+    console.log('Result: ', result);
+});
 
 main().then(() => {
     ph.exit();
