@@ -13,7 +13,7 @@ const sleep = (time) => new Promise(res => {
 });
 
 const waitFor = co.wrap(function *(testFunc, timeOutMillis) {
-    return new Promise((res, rej) => {
+    return new Promise(function*(res, rej) {
         const start = new Date().getTime();
         const maxtimeOutMillis = timeOutMillis || 3000;
         const condition = false;
@@ -30,7 +30,7 @@ const waitFor = co.wrap(function *(testFunc, timeOutMillis) {
         } else {
             rej();
         }
-    };
+    });f
 });
 
 
@@ -39,11 +39,11 @@ const main = co.wrap(function *() {
 
     const page = yield ph.createPage();
     yield page.open(config.host);
-    yield page.evaluate(function() {
-        document.getElementById('login_username').value = 'vgamula';
-        document.getElementById('login_password').value = 'q1w2e3';
+    yield page.evaluate(function(username, password) {
+        document.getElementById('login_username').value = username;
+        document.getElementById('login_password').value = password;
         document.getElementById('login').submit();
-    });
+    }, config.username, config.password);
     yield sleep(1000);
     yield page.open('https://msn.khnu.km.ua/mod/quiz/view.php?id=198028');
     yield sleep(1000);
@@ -52,16 +52,25 @@ const main = co.wrap(function *() {
     });
     yield sleep(1000);
 
-    const [qidVal, answId] = yield page.evaluate(function() {
-        var questions = document.getElementsByClassName('que');
-        var firstQuestionElem = questions[0];
-        var qidVal = firstQuestionElem.getElementsByClassName('questionflagpostdata')[0].value;
-        qidVal = qidVal.slice(qidVal.indexOf('qid=') + 4);
-        qidVal = qidVal.slice(0, qidVal.indexOf('&'));
-        return [qidVal, 0];
+    const questions = yield page.evaluate(function() {
+        var questions = [].slice.call(document.getElementsByClassName('que'));
+        return questions.map(function(question) {
+            var id = question.getElementsByClassName('questionflagpostdata')[0].value;
+            id = id.slice(id.indexOf('qid=') + 4);
+            id = id.slice(0, id.indexOf('&'));
+            var answers = [].slice.call(question.querySelectorAll('input[type="radio"][name^="q"]')).map(function(ans) {
+                var text = ans.parentNode.children[1].innerText;
+                return text.slice(text.indexOf('.') + 1).trim();
+            });
+            var questionText = question.querySelector('.qtext').innerText.trim();
+            return {
+                id: id,
+                text: questionText,
+                answers: answers
+            };
+        });
     });
-    const content = yield page.property('content');
-    console.log(content);
+    console.log(questions);
 })
 
 main().then(() => {
