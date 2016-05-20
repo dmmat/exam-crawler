@@ -32,26 +32,45 @@ const sleep = (time) => new Promise(res => {
     }, time)
 });
 
+const waitFor = (fn, page) =>  {
+    return new Promise((resolve, reject) => {
+        var test = () => {
+            page.evaluate(fn).then((res) => {
+                if (!res) setTimeout(() => test(fn, page), 500);
+                if (res) return resolve(res);
+            });
+        };
+        test();
+    });
+}
+
 
 const main = co.wrap(function *() {
-    ph = yield phantom.create();
+    ph = yield phantom.create(['--webdriver-loglevel=NONE']);
 
     const page = yield ph.createPage();
     yield page.open(config.host);
+    yield waitFor(function() {
+        return !!document.getElementById('login_username');
+    }, page);
     yield page.evaluate(function(config) {
         document.getElementById('login_username').value = config.username;
         document.getElementById('login_password').value = config.password;
         document.getElementById('login').submit();
     }, config);
-    yield sleep(1000);
+    yield sleep(2000);
     let N = 1000;
     while (N--) {
         yield page.open('https://msn.khnu.km.ua/mod/quiz/view.php?id=198028');
-        yield sleep(1000);
+        yield waitFor(function() {
+            return !!document.querySelector('form[action="https://msn.khnu.km.ua/mod/quiz/startattempt.php"]');
+        }, page);
         yield page.evaluate(function() {
             document.forms[0].submit();
         });
-        yield sleep(2000);
+        yield waitFor(function() {
+            return !!document.querySelector('.que');
+        }, page);
 
         const questions = yield page.evaluate(function() {
             var questions = [].slice.call(document.getElementsByClassName('que'));
@@ -77,6 +96,7 @@ const main = co.wrap(function *() {
                 };
             });
         });
+
         if (_.isEmpty(questions)) {
             // console.log('Questions are empty. Something went wrong.');
             console.log('Next');
@@ -110,15 +130,23 @@ const main = co.wrap(function *() {
             document.getElementById(id).checked = true;
             document.querySelector('input[type="submit"]').click();
         }, optionIdToCheck);
-        yield sleep(1500);
+        yield waitFor(function() {
+            return !!document.querySelector('input[id^="single"]');
+        }, page);
         yield page.evaluate(function() {
             document.querySelector('input[id^="single"]').click();
         });
-        yield sleep(500);
+
+        yield waitFor(function() {
+            return !!document.querySelector('input[id^="id_yuiconfirmyes"]');
+        }, page);
         yield page.evaluate(function() {
             document.querySelector('input[id^="id_yuiconfirmyes"]').click();
         });
-        yield sleep(1500);
+
+        yield waitFor(function() {
+            return !!document.querySelector('.lastrow .c2');
+        }, page);
         const result = yield page.evaluate(function() {
             return document.querySelector('.lastrow .c2').innerText !== "0";
         });
@@ -146,8 +174,7 @@ main().then(() => {
 }).catch(() => {
     mongoose.disconnect();
     ph.exit();
-    // console.log(arguments);
-});;
+});
 
 process.on('SIGINT', () => {
     mongoose.disconnect();
