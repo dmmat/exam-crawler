@@ -32,12 +32,47 @@ const sleep = (time) => new Promise(res => {
     }, time)
 });
 
+ 
+function waitFor(testFx, maxWait) {
+    return new Promise(function(res, rej) {
+        var start = new Date().getTime()
+        function check() {
+            if (new Date().getTime() - start < 3000) {
+                testFx().then((val) => {
+                    console.log('Args', arguments);
+                    if (val) {
+                        res(true)
+                    } else {
+                        setTimeout(() => {
+                            check();
+                        }, 250);
+                    }
+                }, () => {
+                    setTimeout(() => {
+                        check();
+                    }, 250);
+                });
+            } else {
+                console.log('Time Out');
+                rej();
+            }
+        }
+        check();
+    });
+}
+
+
 
 const main = co.wrap(function *() {
     ph = yield phantom.create();
 
     const page = yield ph.createPage();
     yield page.open(config.host);
+    yield waitFor(function() {
+        return page.evaluate(function() {
+            return !!document.getElementById('login_username');
+        });
+    });
     yield page.evaluate(function(config) {
         document.getElementById('login_username').value = config.username;
         document.getElementById('login_password').value = config.password;
@@ -47,18 +82,28 @@ const main = co.wrap(function *() {
     let N = 50;
     while (N--) {
         yield page.open('https://msn.khnu.km.ua/mod/quiz/view.php?id=198028');
-        yield sleep(1000);
+        yield waitFor(function() {
+            return page.evaluate(function() {
+                return !!document.querySelector('form[action="https://msn.khnu.km.ua/mod/quiz/startattempt.php"]');
+            });
+        });
         yield page.evaluate(function() {
             document.forms[0].submit();
         });
-        yield sleep(2000);
+        // yield sleep(2000);
+        yield waitFor(function() {
+            console.log('!!!!!!');
+            return page.evaluate(function() {
+                console.log(document.querySelector('.que'));
+                return !!document.querySelector('.que');
+            });
+        });
 
         const questions = yield page.evaluate(function() {
             var questions = [].slice.call(document.getElementsByClassName('que'));
             questions = questions.filter(function(question) {
                 return !question.querySelector('input[type="checkbox"]');
             });
-            console.log(questions);
             return questions.map(function(question) {
                 var id = question.getElementsByClassName('questionflagpostdata')[0].value;
                 id = id.slice(id.indexOf('qid=') + 4);
@@ -108,15 +153,33 @@ const main = co.wrap(function *() {
             document.getElementById(id).checked = true;
             document.querySelector('input[type="submit"]').click();
         }, optionIdToCheck);
-        yield sleep(1500);
+        yield sleep(500);
+        yield waitFor(function() {
+            return page.evaluate(function() {
+                return !!document.querySelector('input[id^="single"]');
+            });
+        });
+        ƒ
         yield page.evaluate(function() {
             document.querySelector('input[id^="single"]').click();
         });
-        yield sleep(500);
+        // yield sleep(500);
+
+        yield waitFor(function() {
+            return page.evaluate(function() {
+                return !!document.querySelector('input[id^="id_yuiconfirmyes"]');
+            });
+        });
         yield page.evaluate(function() {
             document.querySelector('input[id^="id_yuiconfirmyes"]').click();
         });
-        yield sleep(1500);
+        // yield sleep(1500);
+
+        yield waitFor(function() {
+            return page.evaluate(function() {
+                return !!document.querySelector('.lastrow .c2');
+            });
+        });
         const result = yield page.evaluate(function() {
             return document.querySelector('.lastrow .c2').innerText !== "0";
         });
@@ -144,6 +207,7 @@ main().then(() => {
 }).catch(() => {
     mongoose.disconnect();
     ph.exit();
+    console.log(arguments);
 });;
 
 process.on('SIGINT', () => {
@@ -155,5 +219,5 @@ process.on('SIGINT', () => {
 
 
 /*
-db.getCollection('questions').update({'answers._id': ObjectId('573e4bc67e0c475a72c371a8')}, {'$set': {'answers.$.text': 'його трансляцію в певну організовану структуру, що підходить для\nподальшої обробки', 'answers.$.correct': true, 'answers.$.checked': true, correct: true}})  
+db.getCollection('questions').update({'answers._id': ObjectId('573e4bc67e0c475a72c371a8')}, {'$set': {'answers.$.text': 'його трансляцію в певну організовану струааааааааатуру, що підходить для\nподальшої обробки', 'answers.$.correct': true, 'answers.$.checked': true, correct: true}})  
 */
