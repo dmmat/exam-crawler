@@ -44,7 +44,7 @@ const main = co.wrap(function *() {
         document.getElementById('login').submit();
     }, config);
     yield sleep(1000);
-    let N = 200;
+    let N = 50;
     while (N--) {
         yield page.open('https://msn.khnu.km.ua/mod/quiz/view.php?id=198028');
         yield sleep(1000);
@@ -100,8 +100,8 @@ const main = co.wrap(function *() {
         const questionToCheck = yield Question.findOne({id: {'$in': qIds}, correct: false});
         const localQuestion = _.find(questions, {'id': questionToCheck.id});
         const answerToCheck = _.find(questionToCheck.answers, {checked: false});
-        console.log(localQuestion);
-        console.log(answerToCheck);
+        // console.log(localQuestion);
+        // console.log(answerToCheck);
         const optionIdToCheck = _.find(localQuestion.answers, {text: answerToCheck.text}).htmlId;
 
         yield page.evaluate(function(id) {
@@ -120,6 +120,9 @@ const main = co.wrap(function *() {
         const result = yield page.evaluate(function() {
             return document.querySelector('.lastrow .c2').innerText !== "0";
         });
+        if (result == null) {
+            continue;
+        }
         console.log(questionToCheck);
         console.log(answerToCheck);
         console.log('Result: ', result, '      ', N + ' left');
