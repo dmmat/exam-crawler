@@ -100,6 +100,8 @@ const main = co.wrap(function *() {
         const questionToCheck = yield Question.findOne({id: {'$in': qIds}, correct: false});
         const localQuestion = _.find(questions, {'id': questionToCheck.id});
         const answerToCheck = _.find(questionToCheck.answers, {checked: false});
+        console.log(localQuestion);
+        console.log(answerToCheck);
         const optionIdToCheck = _.find(localQuestion.answers, {text: answerToCheck.text}).htmlId;
 
         yield page.evaluate(function(id) {
@@ -120,7 +122,7 @@ const main = co.wrap(function *() {
         });
         console.log(questionToCheck);
         console.log(answerToCheck);
-        console.log('Result: ', result), N + ' left';
+        console.log('Result: ', result, '      ', N + ' left');
         const dataToUpdate = {
             '$set': {
                 'answers.$.correct': result,
@@ -147,3 +149,8 @@ process.on('SIGINT', () => {
     console.log('Bye :)');
     process.exit();
 });
+
+
+/*
+db.getCollection('questions').update({'answers._id': ObjectId('573e4bc67e0c475a72c371a8')}, {'$set': {'answers.$.text': 'його трансляцію в певну організовану структуру, що підходить для\nподальшої обробки', 'answers.$.correct': true, 'answers.$.checked': true, correct: true}})  
+*/
