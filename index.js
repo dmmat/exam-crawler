@@ -58,7 +58,6 @@ const main = co.wrap(function *() {
             questions = questions.filter(function(question) {
                 return !question.querySelector('input[type="checkbox"]');
             });
-            console.log(questions);
             return questions.map(function(question) {
                 var id = question.getElementsByClassName('questionflagpostdata')[0].value;
                 id = id.slice(id.indexOf('qid=') + 4);
@@ -79,7 +78,8 @@ const main = co.wrap(function *() {
             });
         });
         if (_.isEmpty(questions)) {
-            console.log('Questions are empty. Something went wrong.');
+            // console.log('Questions are empty. Something went wrong.');
+            console.log('Next');
             continue;
         }
         for (let q of questions) {
@@ -99,8 +99,12 @@ const main = co.wrap(function *() {
         const qIds = _.map(questions, 'id');
         const questionToCheck = yield Question.findOne({id: {'$in': qIds}, correct: false});
         const localQuestion = _.find(questions, {'id': questionToCheck.id});
+        // console.log(localQuestion);
         const answerToCheck = _.find(questionToCheck.answers, {checked: false});
+        // console.log(answerToCheck);
+        // console.log(localQuestion.answers);
         const optionIdToCheck = _.find(localQuestion.answers, {text: answerToCheck.text}).htmlId;
+        // console.log(optionIdToCheck);
 
         yield page.evaluate(function(id) {
             document.getElementById(id).checked = true;
@@ -142,6 +146,7 @@ main().then(() => {
 }).catch(() => {
     mongoose.disconnect();
     ph.exit();
+    // console.log(arguments);
 });;
 
 process.on('SIGINT', () => {
@@ -154,14 +159,17 @@ process.on('SIGINT', () => {
 
 /*
     db.getCollection('questions').update(
-        {'answers._id': ObjectId('573e4bc67e0c475a72c371a8')},
+        {'answers._id': ObjectId('573e4cb93e6f0bdf745405e3')},
         {
             '$set': {
-                'answers.$.text': 'його трансляцію в певну організовану структуру, що підходить для\nподальшої обробки',
-                'answers.$.correct': true,
-                'answers.$.checked': true,
-                'correct': true
+                'answers.$.text': 'інша відповідь',
             }
         }
     )
+
+
+    // Show cool stats in robomongo
+    
+    var unchecked = db.getCollection('questions').count({'correct': false, 'answers.checked': {$not: {'$all': [true]}}}); 'Unchecked: ' + unchecked + ' / 629' + '    ' + (unchecked * 100 / 629).toFixed(2) + '%';
+    var correct = db.getCollection('questions').count({correct: true}); 'Correct: ' + correct + ' / 629' + '    ' + (correct * 100 / 629).toFixed(2) + '%';
 */
