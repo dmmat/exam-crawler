@@ -24,11 +24,9 @@ const Question = mongoose.model('Question', QuestionSchema);
 
 const main = co.wrap(function *() {
     const questions = yield Question.find({correct: true});
-    const data = _.map(questions, q => {
-        return {
-            i: q.id,
-            a: _.find(q.answers, {correct: true}).text
-        }
+    const data = {};
+    _.each(questions, q => {
+        data[q.id] = _.find(q.answers, {correct: true}).text;
     });
     console.log(JSON.stringify(data));
 });
