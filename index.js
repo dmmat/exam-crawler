@@ -6,7 +6,6 @@ const _ = require('lodash');
 const config = require('./config');
 
 const Schema = mongoose.Schema;
-const ObjectId = Schema.ObjectId;
 
 
 mongoose.connect(config.dbUrl);
@@ -98,8 +97,6 @@ const main = co.wrap(function *() {
         });
 
         if (_.isEmpty(questions)) {
-            // console.log('Questions are empty. Something went wrong.');
-            console.log('Next');
             continue;
         }
         for (let q of questions) {
@@ -186,10 +183,10 @@ process.on('SIGINT', () => {
 
 /*
     db.getCollection('questions').update(
-        {'answers._id': ObjectId('573e4cb93e6f0bdf745405e3')},
+        {'answers._id': ObjectId('573e4d34d5b2cad276caf281')},
         {
             '$set': {
-                'answers.$.text': 'інша відповідь',
+                'answers.$.text': 'Система спеціальним чином орга��ізованих даних — баз даних, програмних, технічних, мовних, організаційно-методичних засобів, призначених тільки для багатоцільового використання даних',
             }
         }
     )
