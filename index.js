@@ -115,12 +115,15 @@ const main = co.wrap(function *() {
         }
         const qIds = _.map(questions, 'id');
         const questionToCheck = yield Question.findOne({id: {'$in': qIds}, correct: false});
-        const localQuestion = _.find(questions, {'id': questionToCheck.id});
+        const hasQuestion = !!questionToCheck;
+        const localQuestion = hasQuestion ?_.find(questions, {'id': questionToCheck.id}) : null;
         // console.log(localQuestion);
-        const answerToCheck = _.find(questionToCheck.answers, {checked: false});
+        const answerToCheck = hasQuestion ? _.find(questionToCheck.answers, {checked: false}): null;
         // console.log(answerToCheck);
         // console.log(localQuestion.answers);
-        const optionIdToCheck = _.find(localQuestion.answers, {text: answerToCheck.text}).htmlId;
+        const optionIdToCheck = hasQuestion ? _.find(localQuestion.answers, {text: answerToCheck.text}).htmlId : (
+            questions[0].answers[0].htmlId
+        );
         // console.log(optionIdToCheck);
 
         yield page.evaluate(function(id) {
@@ -147,7 +150,7 @@ const main = co.wrap(function *() {
         const result = yield page.evaluate(function() {
             return document.querySelector('.lastrow .c2').innerText !== "0";
         });
-        if (result == null) {
+        if (result == null || !hasQuestion) {
             continue;
         }
         console.log(questionToCheck);
@@ -183,10 +186,10 @@ process.on('SIGINT', () => {
 
 /*
     db.getCollection('questions').update(
-        {'answers._id': ObjectId('573e4d34d5b2cad276caf281')},
+        {'answers._id': ObjectId('573e4e6b7af178317b82df8e')},
         {
             '$set': {
-                'answers.$.text': 'Система спеціальним чином орга��ізованих даних — баз даних, програмних, технічних, мовних, організаційно-методичних засобів, призначених тільки для багатоцільового використання даних',
+                'answers.$.text': 'Дослідити внутрішню структуру програми',
             }
         }
     )
