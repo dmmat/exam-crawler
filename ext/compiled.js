@@ -62,3 +62,8 @@ window._questions = {"1295603":"Інша відповідь","1295605":"Робо
         document.getElementById(minimum.id).checked = true;
     };
 });
+
+
+window.vv = function() {
+  [].slice.call(document.querySelectorAll('.state')).forEach(x => x.click());
+};
