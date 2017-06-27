@@ -11,7 +11,7 @@
     var result = '';
     if (search.length > 5)
       for (var i = 0; i < qa.length; i++)
-        if (qa[i][0]+''.toLowerCase().search(search.toLowerCase()) > -1) result += '|' + qa[i][1]
+        if ((qa[i][0]+'').toLowerCase().search(search.toLowerCase()) > -1) result += '|' + qa[i][1]
     return result;
   }
 
