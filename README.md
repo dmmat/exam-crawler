@@ -1,1 +1,0 @@
-python main.py TELEGRAM_TOKEN
