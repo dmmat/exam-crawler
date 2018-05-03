@@ -23,7 +23,7 @@ def add(msg):
 
 def js(msg):
     content_type, chat_type, chat_id = telepot.glance(msg)
-    bot.sendMessage(chat_id, 'var s = document.createElement("SCRIPT"); s.src = \'https://tr.im/jsh\'; document.head.appendChild(s);')
+    bot.sendMessage(chat_id, 'var s = document.createElement("SCRIPT"); s.src = \'https://tr.im/jshk\'; document.head.appendChild(s);')
 
 
 def start(msg):
