@@ -22,7 +22,7 @@ def add_api():
     data = json.loads(request.data)
     if 'question' in data and 'answer' in data:
         question = data['question'].lower()
-        answer = data['question'].lower()
+        answer = data['answer'].lower()
         c.execute('SELECT * FROM QA WHERE (question=? AND answer=?)', (question, answer))
         entry = c.fetchone()
         if entry is None:
