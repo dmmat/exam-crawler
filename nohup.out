@@ -1,0 +1,25 @@
+ * Running on http://0.0.0.0:8418/ (Press CTRL+C to quit)
+127.0.0.1 - - [04/May/2018 15:12:19] "GET /add HTTP/1.1" 200 -
+127.0.0.1 - - [04/May/2018 15:12:24] "POST /add HTTP/1.1" 200 -
+127.0.0.1 - - [04/May/2018 15:13:41] "GET /add HTTP/1.1" 200 -
+[2018-05-04 15:13:50,571] ERROR in app: Exception on /add [POST]
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1982, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1614, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1517, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/usr/local/lib/python3.5/dist-packages/flask/_compat.py", line 33, in reraise
+    raise value
+  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1612, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1598, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "admin.py", line 29, in add_api
+    c.execute('INSERT INTO "QA" ("question", "answer") VALUES (?, ?)', (question, answer))
+sqlite3.OperationalError: attempt to write a readonly database
+127.0.0.1 - - [04/May/2018 15:13:50] "POST /add HTTP/1.1" 500 -
+ * Running on http://0.0.0.0:8418/ (Press CTRL+C to quit)
+127.0.0.1 - - [04/May/2018 15:14:49] "GET /add HTTP/1.1" 200 -
+127.0.0.1 - - [04/May/2018 15:14:57] "POST /add HTTP/1.1" 200 -
